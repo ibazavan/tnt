@@ -1,0 +1,110 @@
+openapi: 3.0.1
+info:
+  title: TNT Aggregator API
+  description: Aggregator service capable of interfacing with multiple APIs, supporting multiple queries.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080/
+    description: localhost server used for testing
+tags:
+  - name: Aggregation
+paths:
+  /aggregation:
+    get:
+      summary: Returns the aggregated data queried by the user
+      operationId: getAggregatedDataV1
+      tags:
+        - Aggregation
+      parameters:
+        - $ref: "#/components/parameters/pricingParam"
+        - $ref: "#/components/parameters/trackParam"
+        - $ref: "#/components/parameters/shipmentsParam"
+      responses:
+        200:
+          description: Aggregation of responses from TNT services.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AggregationResponseV1"
+components:
+  parameters:
+    pricingParam:
+      in: query
+      name: pricing
+      description: Accepts one or more ISO-2 country codes (comma separated)
+      style: form
+      explode: false
+      required: true
+      x-constraints: "@PricingListConstraint"
+      schema:
+        type: array
+        items:
+          type: string
+          pattern: '^A[^ABCHJKNPVY]|B[^CKPUX]|C[^BEJPQST]|D[EJKMOZ]|E[CEGHRST]|F[IJKMOR]|G[^CJKOVXZ]|H[KMNRTU]|I[DEL-OQ-T]|J[EMOP]|K[EGHIMNPRWYZ]|L[ABCIKR-VY]|M[^BIJ]|N[ACEFGILOPRUZ]|OM|P[AE-HK-NRSTWY]|QA|R[EOSUW]|S[^FPQUW]|T[^ABEIPQSUXY]|U[AGMSYZ]|V[ACEGINU]|WF|WS|YE|YT|Z[AMW]$'
+
+    trackParam:
+      in: query
+      name: track
+      description: Accepts one or more 9-digit order numbers (comma separated)
+      style: form
+      explode: false
+      required: true
+      schema:
+        type: array
+        items:
+          type: string
+          minLength: 9
+          maxLength: 9
+
+    shipmentsParam:
+      in: query
+      name: shipments
+      description: Accepts one or more 9-digit order numbers (comma separated)
+      style: form
+      explode: false
+      required: true
+      schema:
+        type: array
+        items:
+          type: string
+          minLength: 9
+          maxLength: 9
+
+  schemas:
+    AggregationResponseV1:
+      title: Aggregation Response V1
+      type: object
+      properties:
+        pricing:
+          $ref: '#/components/schemas/Pricing'
+        track:
+          $ref: '#/components/schemas/Track'
+        shipments:
+          $ref: '#/components/schemas/Shipments'
+
+    Pricing:
+      type: object
+      additionalProperties:
+        type: number
+      example:
+        NL: 14.242090605778
+        CN: 20.503467806384
+
+    Track:
+      type: object
+      description: Returns one of the following tracking states NEW, IN TRANSIT, COLLECTING, COLLECTED, DELIVERING, DELIVERED.
+      additionalProperties:
+        type: string
+      example:
+        109347263: null
+        123456891: "COLLECTING"
+
+    Shipments:
+      type: object
+      additionalProperties:
+        type: array
+        items:
+          type: string
+      example:
+        109347263: ["box","box","pallet"]
+        123456891: null
