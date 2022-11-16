@@ -1,0 +1,2 @@
+docker rm $(docker stop $(docker ps -a -q --filter ancestor=aggregator --format="{{.ID}}"))
+docker rm $(docker stop $(docker ps -a -q --filter ancestor=xyzassessment/backend-services --format="{{.ID}}"))

@@ -1,0 +1,9 @@
+server:
+  port: 8080
+
+integration:
+  host: "http://host.docker.internal:9090"
+  endpoint:
+    pricing: "pricing"
+    shipments: "shipments"
+    tracking: "track"
